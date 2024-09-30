@@ -3,9 +3,9 @@
 @import 'tailwindcss/utilities';
 
 body {
-    @apply transition-colors duration-300;
+	@apply transition-colors duration-300;
 }
 
 .dark body {
-    @apply bg-gray-900 text-white;
+	@apply bg-gray-900 text-white;
 }
