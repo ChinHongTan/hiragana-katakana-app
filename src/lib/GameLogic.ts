@@ -1,6 +1,8 @@
 import { characters, type Character } from './data/characters';
 import { get } from 'svelte/store';
 import { preferences } from './stores/preferencesStore';
+import { progress } from './stores/progressStore';
+import { statistics } from './stores/statisticsStore';
 import {
 	updateScore,
 	addIncorrectAnswer,
@@ -125,12 +127,52 @@ export abstract class BaseGameLogic implements GameLogic {
         updateScore(correct);
         if (correct) {
             setFeedback('Correct!');
+            this.updateProgress(true);
         } else {
             const correctAnswer = this.getCorrectAnswerDisplay();
             setFeedback(`Incorrect. The correct answer is ${correctAnswer}`);
             addIncorrectAnswer(this.currentCharacter!, answer, correctAnswer);
+            this.updateProgress(false);
         }
+        this.updateStatistics(correct);
     }
+
+    private updateProgress(correct: boolean) {
+        progress.update(p => {
+            const newProgress = {
+                ...p,
+                score: p.score + (correct ? 1 : 0),
+                streak: correct ? p.streak + 1 : 0,
+                longestStreak: Math.max(p.longestStreak, correct ? p.streak + 1 : p.streak),
+                learned: p.learned + (correct ? 1 : 0),
+            };
+            console.log('Progress updated:', newProgress);
+            return newProgress;
+        });
+    }
+    
+    private updateStatistics(correct: boolean) {
+        statistics.update(s => {
+            const charStats = s.characterStats[this.currentCharacter!.romaji] || { attempts: 0, correct: 0, averageResponseTime: 0 };
+            const newStats = {
+                ...s,
+                totalAttempts: s.totalAttempts + 1,
+                correctAttempts: s.correctAttempts + (correct ? 1 : 0),
+                incorrectAttempts: s.incorrectAttempts + (correct ? 0 : 1),
+                characterStats: {
+                    ...s.characterStats,
+                    [this.currentCharacter!.romaji]: {
+                        attempts: charStats.attempts + 1,
+                        correct: charStats.correct + (correct ? 1 : 0),
+                        averageResponseTime: charStats.averageResponseTime
+                    }
+                }
+            };
+            console.log('Statistics updated:', newStats);
+            return newStats;
+        });
+    }
+    
 
     protected getCorrectAnswerDisplay(): string {
         if (!this.currentCharacter) return '';

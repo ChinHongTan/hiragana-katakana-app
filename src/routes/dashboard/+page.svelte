@@ -14,14 +14,9 @@
 
 	let mostDifficultCharacters: { romaji: string; accuracy: number }[] = [];
 	let mostPracticedCharacters: { romaji: string; attempts: number }[] = [];
-
-	$: overallAccuracy =
-		$statistics.totalAttempts > 0
-			? ($statistics.correctAttempts / $statistics.totalAttempts) * 100
-			: 0;
+	let overallAccuracy = 0;
 
 	const progressScore = spring(0);
-	$: progressScore.set($progress.score);
 
 	function calculateMostDifficultCharacters() {
 		const charStats = Object.entries($statistics.characterStats)
@@ -57,11 +52,35 @@
 	}
 
 	onMount(() => {
-		calculateMostDifficultCharacters();
-		calculateMostPracticedCharacters();
+		const unsubscribeProgress = progress.subscribe((p) => {
+			console.log('Progress subscription updated:', p);
+			progressScore.set(p.score);
+		});
+
+		const unsubscribeStatistics = statistics.subscribe((s) => {
+			console.log('Statistics subscription updated:', s);
+			calculateMostDifficultCharacters();
+			calculateMostPracticedCharacters();
+			overallAccuracy = s.totalAttempts > 0
+				? (s.correctAttempts / s.totalAttempts) * 100
+				: 0;
+		});
+
 		generateProgressData();
+
+		return () => {
+			unsubscribeProgress();
+			unsubscribeStatistics();
+		};
 	});
+
+
+	$: progressScore.set($progress.score);
+	$: overallAccuracy = $statistics.totalAttempts > 0
+		? ($statistics.correctAttempts / $statistics.totalAttempts) * 100
+		: 0;
 </script>
+
 
 <PageLayout title="学習ダッシュボード" subtitle="Learning Dashboard">
 	<div class="grid grid-cols-1 gap-8 md:grid-cols-2">
