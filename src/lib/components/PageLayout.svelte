@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { darkMode } from '$lib/stores/themeStore';
+
 	export let title: string;
 	export let subtitle: string;
 </script>

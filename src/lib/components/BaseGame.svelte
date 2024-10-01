@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { getDisplayCharacter } from '$lib/utils';
-	import { onMount, onDestroy, createEventDispatcher } from 'svelte';
-	import { gameState, startSession, endSession, resetGameState } from '$lib/stores/gameStore';
+	import { createEventDispatcher, onDestroy, onMount } from 'svelte';
+	import { gameState, resetGameState, startSession } from '$lib/stores/gameStore';
 	import SessionSetup from './SessionSetup.svelte';
 	import SessionProgress from './SessionProgress.svelte';
 	import SessionResults from './SessionResults.svelte';

@@ -1,9 +1,9 @@
-import { characters, type Character } from './data/characters';
+import { type Character, characters } from './data/characters';
 import { get } from 'svelte/store';
 import { preferences } from './stores/preferencesStore';
 import { progress } from './stores/progressStore';
 import { statistics } from './stores/statisticsStore';
-import { updateScore, addIncorrectAnswer, setFeedback, endSession } from './stores/gameStore';
+import { addIncorrectAnswer, endSession, setFeedback, updateScore } from './stores/gameStore';
 
 export interface GameLogic {
 	start: () => void;

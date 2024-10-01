@@ -1,6 +1,6 @@
+import type { OptionsGameLogic } from './GameLogic';
 import { BaseGameLogic } from './GameLogic';
 import type { Character } from './data/characters';
-import type { OptionsGameLogic } from './GameLogic';
 import { shuffleArray } from './utils';
 
 export class WritingGameLogic extends BaseGameLogic implements OptionsGameLogic {

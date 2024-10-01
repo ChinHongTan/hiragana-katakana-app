@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { preferences } from '$lib/stores/preferencesStore';
 	import { characters } from '$lib/data/characters';
-	import { fade, fly } from 'svelte/transition';
+	import { fade } from 'svelte/transition';
 	import { spring } from 'svelte/motion';
-	import { quintOut } from 'svelte/easing';
 	import { darkMode } from '$lib/stores/themeStore';
 	import { getDisplayCharacter } from '$lib/utils';
 	import PageLayout from '$lib/components/PageLayout.svelte';

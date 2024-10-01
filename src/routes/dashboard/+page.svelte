@@ -3,9 +3,8 @@
 	import { progress } from '$lib/stores/progressStore';
 	import { statistics } from '$lib/stores/statisticsStore';
 	import { characters } from '$lib/data/characters';
-	import { preferences } from '$lib/stores/preferencesStore';
 	import ProgressChart from '$lib/components/ProgressChart.svelte';
-	import { fade, fly, scale, draw } from 'svelte/transition';
+	import { fade, fly, scale } from 'svelte/transition';
 	import { spring } from 'svelte/motion';
 	import { quintOut } from 'svelte/easing';
 	import { darkMode } from '$lib/stores/themeStore';

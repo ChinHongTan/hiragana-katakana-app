@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount } from 'svelte';
 
 	export let size = 40;
 	export let maxSegmentPercentage = 75; // Max width of the segment as a percentage of the circle
