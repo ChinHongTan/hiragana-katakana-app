@@ -4,7 +4,10 @@ import type { OptionsGameLogic } from './GameLogic';
 import { shuffleArray } from './utils';
 
 export class WritingGameLogic extends BaseGameLogic implements OptionsGameLogic {
+    readonly isWritingGameLogic = true;
     private options: string[] = [];
+    private correctAnswer: string = '';
+    private userSelection: string | null = null;
 
     constructor(totalSteps: number) {
         super(totalSteps);
@@ -13,9 +16,12 @@ export class WritingGameLogic extends BaseGameLogic implements OptionsGameLogic 
     getNextQuestion() {
         super.getNextQuestion();
         this.generateOptions();
+        this.correctAnswer = this.getConsistentDisplayCharacter(this.currentCharacter!);
+        this.userSelection = null;
     }
 
     checkAnswer(selectedOption: string): boolean {
+        this.userSelection = selectedOption;
         return super.checkAnswer(selectedOption);
     }
 
@@ -26,6 +32,14 @@ export class WritingGameLogic extends BaseGameLogic implements OptionsGameLogic 
 
     getOptions(): string[] {
         return this.options;
+    }
+
+    getCorrectAnswer(): string {
+        return this.correctAnswer;
+    }
+
+    getUserSelection(): string | null {
+        return this.userSelection;
     }
 
     getQuestionDisplay(): string {

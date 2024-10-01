@@ -20,12 +20,9 @@
 	const dispatch = createEventDispatcher();
 
 	function startNewSession() {
-		console.log('startNewSession called');
-		console.log('Starting new session with length:', sessionLength);
 		resetGameState();
 		startSession(sessionLength);
 		dispatch('start', { sessionLength });
-		console.log('Game state after starting new session:', $gameState);
 	}
 
 	function goToHome() {
@@ -41,9 +38,7 @@
 	}
 
 	onMount(() => {
-		console.log('BaseGame component mounted');
 		return () => {
-			console.log('BaseGame component unmounted');
 			resetGameState();
 		};
 	});
@@ -53,8 +48,6 @@
 			gameLogic.cleanup();
 		}
 	});
-
-	$: console.log('Current game state in BaseGame:', $gameState);
 </script>
 
 <div

@@ -4,6 +4,7 @@
     import { gameState } from '$lib/stores/gameStore';
     import type { Character } from '$lib/data/characters';
     import type { GameLogic, OptionsGameLogic } from '$lib/GameLogic';
+    import type { WritingGameLogic } from '$lib/WritingGameLogic';
 
     export let gameLogic: GameLogic;
     export let inputType: 'text' | 'options' = 'text';
@@ -12,6 +13,9 @@
     let userAnswer = '';
     let currentCharacter: Character | null = null;
     let canSubmit = true;
+    let selectedOption: string | null = null;
+    let isCorrectAnswer: boolean | null = null;
+    let correctAnswer: string | null = null;
 
     function handleSubmit() {
         if (!canSubmit) return;
@@ -27,22 +31,34 @@
         }, correct ? 500 : 1500);
     }
 
-
     function updateCurrentCharacter() {
         currentCharacter = gameLogic.getCurrentCharacter();
         if (inputType === 'options') {
             options = (gameLogic as OptionsGameLogic).getOptions();
         }
+        if ('isWritingGameLogic' in gameLogic) {
+            correctAnswer = (gameLogic as WritingGameLogic).getCorrectAnswer();
+        }
     }
 
     function handleOptionSelect(option: string) {
         if (!canSubmit) return;
+        selectedOption = option;
+        
+        if ('isWritingGameLogic' in gameLogic) {
+            correctAnswer = (gameLogic as WritingGameLogic).getCorrectAnswer();
+        }
+        
         const correct = gameLogic.checkAnswer(option);
+        isCorrectAnswer = correct;
         canSubmit = false;
 
         setTimeout(() => {
-            updateCurrentCharacter();
             canSubmit = true;
+            updateCurrentCharacter();
+            selectedOption = null;
+            isCorrectAnswer = null;
+            correctAnswer = null;
         }, correct ? 500 : 1500);
     }
 
@@ -51,8 +67,6 @@
     $: questionText = currentCharacter ? gameLogic.getQuestionDisplay() : '';
     $: isSessionActive = currentCharacter && !$gameState.sessionEnded;
 </script>
-
-{@debug isSessionActive, currentCharacter, $gameState}
 
 {#if isSessionActive}
     <div class="mb-8 text-center" in:fade>
@@ -90,7 +104,10 @@
             {#each options as option}
                 <button
                     on:click={() => handleOptionSelect(option)}
-                    class="py-6 rounded-xl text-4xl font-bold transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-offset-2 text-white bg-blue-500 hover:bg-blue-600"
+                    class="py-6 rounded-xl text-4xl font-bold transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-offset-2 text-white"
+                    class:bg-blue-500={selectedOption === null || (selectedOption !== option && correctAnswer !== option)}
+                    class:bg-green-500={(selectedOption === option && isCorrectAnswer) || (correctAnswer === option && selectedOption !== null && !isCorrectAnswer)}
+                    class:bg-red-500={selectedOption === option && !isCorrectAnswer}
                     disabled={!canSubmit}
                 >
                     {option}
@@ -114,5 +131,3 @@
 {:else}
     <p>Loading...</p>
 {/if}
-
-

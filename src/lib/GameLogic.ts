@@ -29,7 +29,6 @@ export abstract class BaseGameLogic implements GameLogic {
     protected currentCharacter: Character | null = null;
     protected questionDisplayCharacters: Map<Character, string> = new Map();
     protected availableCharacters: Character[] = [];
-
     protected currentStep: number = 0;
     protected totalSteps: number;
 
@@ -50,7 +49,6 @@ export abstract class BaseGameLogic implements GameLogic {
     }
 
     checkAnswer(answer: string): boolean {
-        console.log(this.currentCharacter)
         if (!this.currentCharacter) return false;
         const correct = this.isCorrectAnswer(answer, this.currentCharacter);
         this.handleAnswer(answer, correct);

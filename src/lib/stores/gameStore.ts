@@ -42,7 +42,6 @@ export function endSession() {
 		...state,
 		sessionEnded: true
 	}));
-	console.log("Session updated to:", gameState)
 }
 
 export function updateScore(correct: boolean) {
@@ -62,7 +61,6 @@ export function addIncorrectAnswer(char: Character, userAnswer: string, correctA
 }
 
 export function updateCurrentStep(step: number) {
-	console.log('Updating current step to:', step);
 	gameState.update((state) => ({ ...state, currentStep: step }));
 }
 
