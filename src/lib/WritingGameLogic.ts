@@ -1,46 +1,55 @@
 import { BaseGameLogic } from './GameLogic';
 import type { Character } from './data/characters';
+import type { OptionsGameLogic } from './GameLogic';
 import { shuffleArray } from './utils';
 
-export class WritingGameLogic extends BaseGameLogic {
-	private options: string[] = [];
+export class WritingGameLogic extends BaseGameLogic implements OptionsGameLogic {
+    private options: string[] = [];
 
-	start() {
-		this.getNextQuestion();
-	}
+    constructor(totalSteps: number) {
+        super(totalSteps);
+    }
 
-	getNextQuestion() {
-		const availableCharacters = this.getAvailableCharacters();
-		this.currentCharacter =
-			availableCharacters[Math.floor(Math.random() * availableCharacters.length)];
-		this.generateOptions();
-	}
+    getNextQuestion() {
+        super.getNextQuestion();
+        this.generateOptions();
+    }
 
-	checkAnswer(selectedOption: string): boolean {
-		if (!this.currentCharacter) return false;
-		const correct = selectedOption === this.getConsistentDisplayCharacter(this.currentCharacter);
-		this.handleAnswer(selectedOption, correct);
-		return correct;
-	}
+    checkAnswer(selectedOption: string): boolean {
+        return super.checkAnswer(selectedOption);
+    }
 
-	getOptions(): string[] {
-		return this.options;
-	}
+    protected getCorrectAnswerDisplay(): string {
+        if (!this.currentCharacter) return '';
+        return this.getConsistentDisplayCharacter(this.currentCharacter);
+    }
 
-	private generateOptions() {
-		if (!this.currentCharacter) return;
+    getOptions(): string[] {
+        return this.options;
+    }
 
-		const correctOption = this.getConsistentDisplayCharacter(this.currentCharacter);
-		const otherOptions = shuffleArray(
-			this.getAvailableCharacters()
-				.filter((char) => char !== this.currentCharacter)
-				.map((char) => this.getConsistentDisplayCharacter(char))
-		).slice(0, 3);
+    getQuestionDisplay(): string {
+        if (!this.currentCharacter) return '';
+        return this.getConsistentDisplayCharacter(this.currentCharacter, true);
+    }
 
-		this.options = shuffleArray([correctOption, ...otherOptions]);
-	}
+    getEndScreenCharacterDisplay(char: Character): string {
+        return char.romaji;
+    }
 
-	moveToNextQuestion(): Character | null {
-		return super.moveToNextQuestion();
-	}
+    private generateOptions() {
+        if (!this.currentCharacter) return;
+    
+        const correctOption = this.getConsistentDisplayCharacter(this.currentCharacter);
+        const otherOptions = shuffleArray(this.availableCharacters
+            .filter(char => char !== this.currentCharacter)
+            .map(char => this.getConsistentDisplayCharacter(char))
+        ).slice(0, 3);
+    
+        this.options = shuffleArray([correctOption, ...otherOptions]);
+    }    
+
+    moveToNextQuestion(): Character | null {
+        return super.moveToNextQuestion();
+    }
 }

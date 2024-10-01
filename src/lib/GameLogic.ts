@@ -5,88 +5,154 @@ import {
 	updateScore,
 	addIncorrectAnswer,
 	setFeedback,
-	gameState,
 	endSession
 } from './stores/gameStore';
 
 export interface GameLogic {
-	start: () => void;
-	getNextQuestion: () => void;
-	checkAnswer: (answer: string) => boolean;
-	getCurrentCharacter: () => Character | null;
-	getOptions?: () => string[];
-	cleanup?: () => void;
-	getConsistentDisplayCharacter: (char: Character) => string;
+    start: () => void;
+    getNextQuestion: () => void;
+    checkAnswer: (answer: string) => boolean;
+    getCurrentCharacter: () => Character | null;
+    getConsistentDisplayCharacter: (char: Character, forQuestion?: boolean) => string;
+    cleanup?: () => void;
+    isSessionEnded: () => boolean;
+    isCorrectAnswer: (input: string, character: Character) => boolean;
+    getQuestionDisplay: () => string;
+    getEndScreenCharacterDisplay: (char: Character) => string;
+}
+
+export interface OptionsGameLogic extends GameLogic {
+    getOptions: () => string[];
 }
 
 export abstract class BaseGameLogic implements GameLogic {
-	protected currentCharacter: Character | null = null;
-	protected questionDisplayCharacters: Map<Character, string> = new Map();
+    protected currentCharacter: Character | null = null;
+    protected questionDisplayCharacters: Map<Character, string> = new Map();
+    protected availableCharacters: Character[] = [];
 
-	abstract start(): void;
-	abstract getNextQuestion(): void;
-	abstract checkAnswer(answer: string): boolean;
+    protected currentStep: number = 0;
+    protected totalSteps: number;
 
-	getCurrentCharacter(): Character | null {
-		return this.currentCharacter;
-	}
+    constructor(totalSteps: number) {
+        this.totalSteps = totalSteps;
+        this.initializeAvailableCharacters();
+    }
 
-	getConsistentDisplayCharacter(char: Character): string {
-		if (!this.questionDisplayCharacters.has(char)) {
-			this.questionDisplayCharacters.set(char, this.getDisplayCharacter(char));
-		}
-		return this.questionDisplayCharacters.get(char)!;
-	}
+    start(): void {
+        this.currentStep = 0;
+        this.initializeAvailableCharacters();
+        this.getNextQuestion();
+    }
 
-	protected getDisplayCharacter(char: Character): string {
-		const prefs = get(preferences);
-		if (prefs.script === 'katakana') {
-			return char.katakana;
-		} else if (prefs.script === 'hiragana') {
-			return char.hiragana;
-		} else {
-			return Math.random() < 0.5 ? char.hiragana : char.katakana;
-		}
-	}
+    getNextQuestion() {
+        const randomIndex = Math.floor(Math.random() * this.availableCharacters.length);
+        this.currentCharacter = this.availableCharacters[randomIndex];
+    }
 
-	protected getAvailableCharacters(): Character[] {
-		return characters.filter((char) => {
-			const prefs = get(preferences);
-			return (
-				prefs.groups.includes(char.group) &&
-				(prefs.script === 'both' ||
-					(prefs.script === 'hiragana' && char.hiragana) ||
-					(prefs.script === 'katakana' && char.katakana))
-			);
-		});
-	}
+    checkAnswer(answer: string): boolean {
+        console.log(this.currentCharacter)
+        if (!this.currentCharacter) return false;
+        const correct = this.isCorrectAnswer(answer, this.currentCharacter);
+        this.handleAnswer(answer, correct);
 
-	protected handleAnswer(answer: string, correct: boolean): void {
-		updateScore(correct);
-		if (correct) {
-			setFeedback('Correct!');
-		} else {
-			setFeedback(`Incorrect. The correct answer is ${this.currentCharacter!.romaji}`);
-			addIncorrectAnswer(this.currentCharacter!, answer, this.currentCharacter!.romaji);
-		}
-	}
+        this.currentStep++;
+        
+        if (this.isSessionEnded()) {
+            setTimeout(() => {
+                endSession();
+            }, correct ? 500 : 1500);
+        } else {
+            this.getNextQuestion();
+        }
+        
+        return correct;
+    }
 
-	getOptions(): string[] {
-		// Default implementation
-		return [];
-	}
+    isCorrectAnswer(input: string, character: Character): boolean {
+        const lowercaseInput = input.toLowerCase();
+        return (
+            lowercaseInput === character.romaji.toLowerCase() ||
+            lowercaseInput === character.hiragana ||
+            lowercaseInput === character.katakana
+        );
+    }
 
-	cleanup(): void {
-		// Default implementation
-	}
+    getCurrentCharacter(): Character | null {
+        return this.currentCharacter;
+    }
 
-	protected moveToNextQuestion(): Character | null {
-		const gameStateValue = get(gameState);
-		if (gameStateValue.currentStep >= gameStateValue.totalSteps) {
-			endSession();
-			return null;
-		}
-		this.getNextQuestion();
-		return this.currentCharacter;
-	}
+    getConsistentDisplayCharacter(char: Character, forQuestion: boolean = false): string {
+        if (!this.questionDisplayCharacters.has(char)) {
+            this.questionDisplayCharacters.set(char, this.getDisplayCharacter(char));
+        }
+        return forQuestion ? this.getWritingDisplayCharacter(char) : this.questionDisplayCharacters.get(char)!;
+    }
+
+    getEndScreenCharacterDisplay(char: Character): string {
+        return this.getConsistentDisplayCharacter(char);
+    }
+
+    protected getDisplayCharacter(char: Character): string {
+        const prefs = get(preferences);
+        if (prefs.script === 'katakana') {
+            return char.katakana;
+        } else if (prefs.script === 'hiragana') {
+            return char.hiragana;
+        } else {
+            return Math.random() < 0.5 ? char.hiragana : char.katakana;
+        }
+    }
+
+    getQuestionDisplay(): string {
+        if (!this.currentCharacter) return '';
+        return this.getConsistentDisplayCharacter(this.currentCharacter);
+    }
+
+    protected getWritingDisplayCharacter(char: Character): string {
+        // For writing mode questions, always return romaji
+        return char.romaji;
+    }
+
+    protected initializeAvailableCharacters(): void {
+        this.availableCharacters = characters.filter((char) => {
+            const prefs = get(preferences);
+            return prefs.groups.includes(char.group) &&
+                (prefs.script === 'both' ||
+                (prefs.script === 'hiragana' && char.hiragana) ||
+                (prefs.script === 'katakana' && char.katakana));
+        });
+    }
+
+    protected handleAnswer(answer: string, correct: boolean): void {
+        updateScore(correct);
+        if (correct) {
+            setFeedback('Correct!');
+        } else {
+            const correctAnswer = this.getCorrectAnswerDisplay();
+            setFeedback(`Incorrect. The correct answer is ${correctAnswer}`);
+            addIncorrectAnswer(this.currentCharacter!, answer, correctAnswer);
+        }
+    }
+
+    protected getCorrectAnswerDisplay(): string {
+        if (!this.currentCharacter) return '';
+        return this.currentCharacter.romaji;
+    }
+
+    protected moveToNextQuestion(): Character | null {
+        if (this.isSessionEnded()) {
+            endSession();
+            return null;
+        }
+        this.getNextQuestion();
+        return this.currentCharacter;
+    }
+
+    cleanup(): void {
+        // Default implementation
+    }
+
+    isSessionEnded(): boolean {
+        return this.currentStep >= this.totalSteps;
+    }
 }

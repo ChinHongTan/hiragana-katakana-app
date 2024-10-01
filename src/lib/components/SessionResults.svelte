@@ -2,13 +2,14 @@
 	import { fade, slide } from 'svelte/transition';
 	import { darkMode } from '$lib/stores/themeStore';
 	import type { Character } from '$lib/data/characters';
+	import type { GameLogic } from '$lib/GameLogic';
 
 	export let score: number;
 	export let totalQuestions: number;
 	export let incorrectAnswers: { char: Character; userAnswer: string; correctAnswer: string }[];
 	export let onNewSession: () => void;
 	export let onGoHome: () => void;
-	export let getDisplayCharacter: (char: Character) => string;
+	export let gameLogic: GameLogic;
 
 	let showIncorrectAnswers = false;
 </script>
@@ -71,7 +72,7 @@
 							class:text-gray-800={!$darkMode}
 							class:text-gray-200={$darkMode}
 						>
-							{getDisplayCharacter(item.char)}
+							{gameLogic.getEndScreenCharacterDisplay(item.char)}
 						</div>
 						<div
 							class="text-sm transition-colors duration-300"

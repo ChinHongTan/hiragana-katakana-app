@@ -42,6 +42,7 @@ export function endSession() {
 		...state,
 		sessionEnded: true
 	}));
+	console.log("Session updated to:", gameState)
 }
 
 export function updateScore(correct: boolean) {

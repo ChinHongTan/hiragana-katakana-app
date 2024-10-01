@@ -21,9 +21,10 @@
 
 	function startNewSession() {
 		console.log('startNewSession called');
+		console.log('Starting new session with length:', sessionLength);
 		resetGameState();
 		startSession(sessionLength);
-		dispatch('start');
+		dispatch('start', { sessionLength });
 		console.log('Game state after starting new session:', $gameState);
 	}
 
@@ -77,13 +78,13 @@
 		/>
 		<slot name="game-content" {currentCharacter} {updateCurrentCharacter}></slot>
 	{:else}
-		<SessionResults
-			score={$gameState.score}
-			totalQuestions={$gameState.totalSteps}
-			incorrectAnswers={$gameState.incorrectAnswers}
-			onNewSession={() => resetGameState()}
-			onGoHome={goToHome}
-			getDisplayCharacter={(char) => gameLogic.getConsistentDisplayCharacter(char)}
-		/>
+	<SessionResults
+		score={$gameState.score}
+		totalQuestions={$gameState.totalSteps}
+		incorrectAnswers={$gameState.incorrectAnswers}
+		onNewSession={() => resetGameState()}
+		onGoHome={goToHome}
+		{gameLogic}
+	/>
 	{/if}
 </div>
