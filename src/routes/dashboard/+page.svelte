@@ -61,9 +61,7 @@
 			console.log('Statistics subscription updated:', s);
 			calculateMostDifficultCharacters();
 			calculateMostPracticedCharacters();
-			overallAccuracy = s.totalAttempts > 0
-				? (s.correctAttempts / s.totalAttempts) * 100
-				: 0;
+			overallAccuracy = s.totalAttempts > 0 ? (s.correctAttempts / s.totalAttempts) * 100 : 0;
 		});
 
 		generateProgressData();
@@ -74,13 +72,12 @@
 		};
 	});
 
-
 	$: progressScore.set($progress.score);
-	$: overallAccuracy = $statistics.totalAttempts > 0
-		? ($statistics.correctAttempts / $statistics.totalAttempts) * 100
-		: 0;
+	$: overallAccuracy =
+		$statistics.totalAttempts > 0
+			? ($statistics.correctAttempts / $statistics.totalAttempts) * 100
+			: 0;
 </script>
-
 
 <PageLayout title="学習ダッシュボード" subtitle="Learning Dashboard">
 	<div class="grid grid-cols-1 gap-8 md:grid-cols-2">

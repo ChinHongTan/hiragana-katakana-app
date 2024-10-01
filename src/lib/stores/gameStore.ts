@@ -69,5 +69,5 @@ export function setFeedback(feedback: string) {
 }
 
 export function resetGameState() {
-    gameState.set(initialState);
+	gameState.set(initialState);
 }

@@ -71,13 +71,13 @@
 		/>
 		<slot name="game-content" {currentCharacter} {updateCurrentCharacter}></slot>
 	{:else}
-	<SessionResults
-		score={$gameState.score}
-		totalQuestions={$gameState.totalSteps}
-		incorrectAnswers={$gameState.incorrectAnswers}
-		onNewSession={() => resetGameState()}
-		onGoHome={goToHome}
-		{gameLogic}
-	/>
+		<SessionResults
+			score={$gameState.score}
+			totalQuestions={$gameState.totalSteps}
+			incorrectAnswers={$gameState.incorrectAnswers}
+			onNewSession={() => resetGameState()}
+			onGoHome={goToHome}
+			{gameLogic}
+		/>
 	{/if}
 </div>

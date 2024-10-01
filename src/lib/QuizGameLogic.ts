@@ -1,10 +1,9 @@
 import { BaseGameLogic } from './GameLogic';
 
 export class QuizGameLogic extends BaseGameLogic {
-    protected currentStep = 0;
+	protected currentStep = 0;
 
-    constructor(totalSteps: number) {
-        super(totalSteps);
-    }
+	constructor(totalSteps: number) {
+		super(totalSteps);
+	}
 }
-
