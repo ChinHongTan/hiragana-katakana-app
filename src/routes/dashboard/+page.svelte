@@ -18,27 +18,23 @@
 	const progressScore = spring(0);
 
 	function calculateMostDifficultCharacters() {
-		const charStats = Object.entries($statistics.characterStats)
+		mostDifficultCharacters = Object.entries($statistics.characterStats)
 			.map(([romaji, stats]) => ({
 				romaji,
 				accuracy: stats.attempts > 0 ? (stats.correct / stats.attempts) * 100 : 100
 			}))
 			.sort((a, b) => a.accuracy - b.accuracy)
 			.slice(0, 5);
-
-		mostDifficultCharacters = charStats;
 	}
 
 	function calculateMostPracticedCharacters() {
-		const charStats = Object.entries($statistics.characterStats)
+		mostPracticedCharacters = Object.entries($statistics.characterStats)
 			.map(([romaji, stats]) => ({
 				romaji,
 				attempts: stats.attempts
 			}))
 			.sort((a, b) => b.attempts - a.attempts)
 			.slice(0, 5);
-
-		mostPracticedCharacters = charStats;
 	}
 
 	let progressData: number[] = [];
@@ -271,11 +267,7 @@
 </PageLayout>
 
 <style>
-	.shadow-3xl {
-		box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.5);
-	}
-
-	.radial-progress {
+    .radial-progress {
 		position: relative;
 		display: inline-flex;
 		justify-content: center;
